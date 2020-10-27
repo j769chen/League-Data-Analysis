@@ -23,6 +23,7 @@ LANES = {
     'Top': 'TOP',
     'Jungle': 'JUNGLE',
     'Middle': 'MIDDLE',
+    'Middle(Match History)': 'MID',  # Riot uses 'MID' in their match history API, but 'MIDDLE' for match stats
     'Bottom': 'BOTTOM'
 }
 
@@ -35,75 +36,73 @@ BOT_ROLES = {
 # Some stats are simply calculated using others, or vice versa, but are still useful to show, so they
 # have a weighting of 0, for example, KDA is (kills + assists)/deaths
 
-TOP_STATS_WEIGHTING = {
-    "kills": 0.15,
-    "deaths": -0.1,
-    "assists": 0.1,
-    "KDA": 0,
-    "totalDamageDealtToChampions": 0.2,
-    "CS": 0.3,
-    "visionScore": 0.2,
-    "visionWardsBoughtInGame": 0,
-    "wardsPlaced": 0,
-    "wardsKilled": 0,
-    "timeCCingOthers": 0.05,
-    "damageDealtToTurrets": 0.1
-}
-
-JUNGLE_STATS_WEIGHTING = {
-    "kills": 0.05,
-    "deaths": -0.15,
-    "assists": 0.15,
-    "KDA": 0,
-    "totalDamageDealtToChampions": 0.2,
-    "CS": 0.3,
-    "visionScore": 0.3,
-    "visionWardsBoughtInGame": 0,
-    "wardsPlaced": 0,
-    "wardsKilled": 0,
-    "timeCCingOthers": 0.15
-}
-
-MID_STATS_WEIGHTING = {
-    "kills": 0.2,
-    "deaths": -0.2,
-    "assists": 0.1,
-    "KDA": 0,
-    "totalDamageDealtToChampions": 0.25,
-    "CS": 0.3,
-    "visionScore": 0.25,
-    "visionWardsBoughtInGame": 0,
-    "wardsPlaced": 0,
-    "wardsKilled": 0,
-    "timeCCingOthers": 0.05,
-    "goldEarned": 0.05
-}
-
-ADC_STATS_WEIGHTING = {
-    "kills": 0.2,
-    "deaths": -0.2,
-    "assists": 0.1,
-    "KDA": 0,
-    "totalDamageDealtToChampions": 0.3,
-    "CS": 0.35,
-    "visionScore": 0.15,
-    "visionWardsBoughtInGame": 0,
-    "wardsPlaced": 0,
-    "wardsKilled": 0,
-    "goldEarned": 0.1
-}
-
-SUPPORT_STATS_WEIGHTING = {
-    "kills": 0.025,
-    "deaths": -0.1,
-    "assists": 0.25,
-    "KDA": 0,
-    "totalDamageDealtToChampions": 0.075,
-    "CS": 0,
-    "visionScore": 0.4,
-    "visionWardsBoughtInGame": 0,
-    "wardsPlaced": 0,
-    "wardsKilled": 0,
-    "timeCCingOthers": 0.3,
-    "goldEarned": 0.05
+STATS_WEIGHTINGS = {
+    LANES['Top']: {
+        "kills": 0.15,
+        "deaths": -0.1,
+        "assists": 0.1,
+        "KDA": 0,
+        "totalDamageDealtToChampions": 0.2,
+        "CS": 0.3,
+        "visionScore": 0.2,
+        "visionWardsBoughtInGame": 0,
+        "wardsPlaced": 0,
+        "wardsKilled": 0,
+        "timeCCingOthers": 0.05,
+        "damageDealtToTurrets": 0.1
+    },
+    LANES['Jungle']: {
+        "kills": 0.05,
+        "deaths": -0.15,
+        "assists": 0.15,
+        "KDA": 0,
+        "totalDamageDealtToChampions": 0.2,
+        "CS": 0.3,
+        "visionScore": 0.3,
+        "visionWardsBoughtInGame": 0,
+        "wardsPlaced": 0,
+        "wardsKilled": 0,
+        "timeCCingOthers": 0.15
+    },
+    LANES['Middle']:  {
+        "kills": 0.2,
+        "deaths": -0.2,
+        "assists": 0.1,
+        "KDA": 0,
+        "totalDamageDealtToChampions": 0.25,
+        "CS": 0.3,
+        "visionScore": 0.25,
+        "visionWardsBoughtInGame": 0,
+        "wardsPlaced": 0,
+        "wardsKilled": 0,
+        "timeCCingOthers": 0.05,
+        "goldEarned": 0.05
+    },
+    BOT_ROLES['ADC']:  {
+        "kills": 0.2,
+        "deaths": -0.2,
+        "assists": 0.1,
+        "KDA": 0,
+        "totalDamageDealtToChampions": 0.3,
+        "CS": 0.35,
+        "visionScore": 0.15,
+        "visionWardsBoughtInGame": 0,
+        "wardsPlaced": 0,
+        "wardsKilled": 0,
+        "goldEarned": 0.1
+    },
+    BOT_ROLES['Support']:  {
+        "kills": 0.025,
+        "deaths": -0.1,
+        "assists": 0.25,
+        "KDA": 0,
+        "totalDamageDealtToChampions": 0.075,
+        "CS": 0,
+        "visionScore": 0.4,
+        "visionWardsBoughtInGame": 0,
+        "wardsPlaced": 0,
+        "wardsKilled": 0,
+        "timeCCingOthers": 0.3,
+        "goldEarned": 0.05
+    }
 }
