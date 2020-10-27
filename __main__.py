@@ -17,7 +17,7 @@ if __name__ == "__main__":
     summonerName = input("Please enter your summoner name: ")
     numGames = int(input("Please enter the number of games you would like reviewed (max 100): "))
     champion = input("If you would like your matches on a specific champion to be reviewed, please enter that "
-                     "champion's name here, if not, click enter: ")
+                     "champion's name here. If not, click enter: ")
 
     if champion == "":
         championNum = None
