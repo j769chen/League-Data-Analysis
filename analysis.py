@@ -2,7 +2,7 @@ import requests
 import json
 import os
 from statistics import median
-from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES
+from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS
 from getData import getFilepath
 
 
@@ -17,10 +17,12 @@ def readMultipleJSONS(tier, division, lane, role=''): # Read JSONs from file int
     return statsList
 
 
-def getAverageRecordedStats(tier, division, lane, role='', toFile=True): # Gets data from JSON Dump for a tier and role and outputs average stats to another file
+def getAverageRecordedStats(tier, division, lane, role=None, toFile=True, fromFile=True, *args): # Gets data from JSON Dump for a tier and role and outputs average stats to another file
     averageStats = {}
-
-    statsList = readMultipleJSONS(tier, division, lane, role)
+    if fromFile:
+        statsList = readMultipleJSONS(tier, division, lane, role)
+    else:
+        statsList = args[0]
 
     for i in statsList:
         for key in i:
@@ -68,7 +70,7 @@ def getSpecificStatList(tier, division, lane, stat, role=''): # Gets the list of
 
 
 def compareStat(statList, userAverage): #Compares user stat to quartile values and evaluates
-    first, second, third = calculateQuartiles((statList))
+    first, second, third = calculateQuartiles(statList)
 
     if userAverage > third:
         return 3
@@ -78,6 +80,9 @@ def compareStat(statList, userAverage): #Compares user stat to quartile values a
         return 1
     else:
         return 0
+
+# def evaluatePlayerStats(tier, division, lane, role=''):
+#
 
 
 
