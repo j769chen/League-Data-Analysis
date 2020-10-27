@@ -1,7 +1,7 @@
 import requests
 import json
 import os
-from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES
+from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS
 import getData
 import analysis
 
@@ -14,7 +14,16 @@ def main(summonerName, numGames, champion, lane, role=None):
 
     averageUserStats = analysis.getAverageRecordedStats(tier, division, lane, role, False, False, userStats)
 
-    print(averageUserStats)
+    if lane == LANES['Middle(Match History)']: # Change this back so that it is 'MIDDLE' for match analysis. See roleReference line 26 for reasoning
+        lane = LANES['Middle']
+
+    if lane == LANES['Bottom']:
+        importantStats = STATS_WEIGHTINGS[role]
+    else:
+        importantStats = STATS_WEIGHTINGS[lane]
+
+    for stats in importantStats:
+        print(averageUserStats[stats])
 
 
 if __name__ == "__main__":

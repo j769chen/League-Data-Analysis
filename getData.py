@@ -148,30 +148,35 @@ def generateFiles(): # Reset/Regenerate comparison data directories and create n
             divisions = DIVISIONS
         for division in divisions:
             for lanes in LANES:
-                if lanes == 'Bottom':
-                    for roles in BOT_ROLES:
-                        try: # Try except so that if filepath doesn't exist, generate directories before generating file
-                            with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes],
-                                                  BOT_ROLES[roles]), 'w') as f:
+                if lanes != 'Middle(Match History)': # Ensures only one mid files is created
+                    if lanes == 'Bottom':
+                        for roles in BOT_ROLES:
+                            try: # Try except so that if filepath doesn't exist, generate directories before generating file
+                                with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes],
+                                                      BOT_ROLES[roles]), 'w') as f:
+                                    f.write('')
+                            except:
+                                os.makedirs('AverageData' + '/' + TIERS[keys] + '/' + DIVISIONS[division], exist_ok=True)
+                                with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes],
+                                                      BOT_ROLES[roles]), 'w') as f:
+                                    f.write('')
+                    else:
+                        try:
+                            with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes]), 'w') as f:
                                 f.write('')
                         except:
-                            os.makedirs('AverageData' + '/' + TIERS[keys] + '/' + DIVISIONS[division], exist_ok=True)
-                            with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes],
-                                                  BOT_ROLES[roles]), 'w') as f:
+                            os.makedirs('AverageData' + '/' +TIERS[keys] + '/' + DIVISIONS[division], exist_ok=True)
+                            with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes]), 'w') as f:
                                 f.write('')
-                else:
-                    try:
-                        with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes]), 'w') as f:
-                            f.write('')
-                    except:
-                        os.makedirs('AverageData' + '/' +TIERS[keys] + '/' + DIVISIONS[division], exist_ok=True)
-                        with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes]), 'w') as f:
-                            f.write('')
 
+generateFiles()
 
 def recordMatchStats(tier, division, matchId): # Dump stats from a match to the corresponding division/role JSON file
     match = getMatchById(matchId)
+    print(match)
     for players in match['participants']:
+        players['gameDuration'] = round(match['gameDuration']/60)
+        print(players['gameDuration'])
         if players['timeline']['lane'] != 'NONE' and (players['timeline']['lane'] != 'BOTTOM' or
                                                       (players['timeline']['role'] != 'DUO' and
                                                        players['timeline']['role'] != 'SOLO')):  # Error handling since some bugs with role assignments in API
@@ -200,6 +205,7 @@ def getDataForDivision(tier, division='I'): # Get ~10 random matches from player
 # def getDataForAllDivisions():
 # getDataForDivision('PLATINUM', 'IV')
 # testMatch = getMatchById(3630630530)
+# print(testMatch)
 #
 # print(getPlayerMatchStats('xTheChosenWon', testMatch))
 #
