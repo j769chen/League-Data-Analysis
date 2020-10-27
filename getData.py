@@ -45,7 +45,7 @@ def getMatchHistory(accountID, champion=None): # Get a user's match history with
         URL = baseURL + "{}?champion={}&api_key={}".format(accountID, champion, API_KEY)
     response = requests.get(URL)
 
-    return response.json()
+    return response.json()['matches']
 
 
 def getMatchById(matchId): # Fetch one match's data from its match ID
@@ -59,7 +59,6 @@ def getMatchById(matchId): # Fetch one match's data from its match ID
 def getPlayerMatchStats(summonerName, matchId): # Get important stats from one match for a player
     match = getMatchById(matchId)
     playerStats = {}
-
     gameTime = match['gameDuration']/60
     for participants in match['participantIdentities']:
         if participants['player']['summonerName'] == summonerName:
@@ -82,7 +81,31 @@ def getPlayerMatchStats(summonerName, matchId): # Get important stats from one m
     return playerStats
 
 
-def getUsersStatsToReview(summonerName, numGames=10, champion=None):
+def filterMatchList(matchList, lane, role, numGames): # Filters match history by either lane or role if lane is "BOTTOM"
+    filteredMatchList = []
+    if lane == LANES['Bottom']:
+        filterParam = role
+        query = 'role'
+    else:
+        filterParam = lane
+        query = 'lane'
+
+    print(matchList)
+    for matches in matchList:
+        if matches[query] == filterParam:
+            filteredMatchList.append(matches)
+
+        if len(filteredMatchList) == numGames:
+            break
+
+    if len(filteredMatchList) < numGames:
+        print("Not enough games, we managed to find {} games in your recent match history as {}".
+              format(len(filteredMatchList), filterParam))
+
+    return filteredMatchList
+
+
+def getUsersStatsToReview(summonerName, lane, numGames, role=None, champion=None): # Gets users stats for last numGames games from their summoner name, filtering by role and optionally filtering by champions
     summonerInfo = requestSummonerData(summonerName)
     rankedInfo = requestRankedData(summonerInfo)
 
@@ -92,8 +115,11 @@ def getUsersStatsToReview(summonerName, numGames=10, champion=None):
 
     matchHistory = getMatchHistory(summonerInfo['accountId'], champion)
     userStats = []
-    for i in range(numGames):
-        userStats.append(getPlayerMatchStats(summonerName, matchHistory['matches'][i]['gameId']))
+
+    filteredMatchList = filterMatchList(matchHistory, lane, role, numGames)
+
+    for matches in filteredMatchList:
+        userStats.append(getPlayerMatchStats(summonerName, matches['gameId']))  # Returns list of user stats
 
     return userStats, tier, division
 
@@ -141,8 +167,6 @@ def generateFiles(): # Reset/Regenerate comparison data directories and create n
                         os.makedirs('AverageData' + '/' +TIERS[keys] + '/' + DIVISIONS[division], exist_ok=True)
                         with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes]), 'w') as f:
                             f.write('')
-
-
 
 
 def recordMatchStats(tier, division, matchId): # Dump stats from a match to the corresponding division/role JSON file
