@@ -22,8 +22,15 @@ def main(summonerName, numGames, champion, lane, role=None):
     else:
         importantStats = STATS_WEIGHTINGS[lane]
 
+    statsQuartiles = {}
     for stats in importantStats:
-        print(averageUserStats[stats])
+        # print(analysis.getSpecificStatList(tier, division, lane, stats, role))
+        statsQuartiles[stats] = analysis.calculateQuartiles(analysis.getSpecificStatList(tier, division, lane, stats, role))
+
+    for stats in statsQuartiles:
+        print(analysis.compareStat(statsQuartiles[stats], averageUserStats[stats]))
+
+
 
 
 if __name__ == "__main__":
