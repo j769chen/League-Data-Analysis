@@ -6,7 +6,7 @@ from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS
 from getData import getFilepath
 
 
-def readMultipleJSONS(tier, division, lane, role=''): # Read JSONs from file into a list
+def readMultipleJSONS(tier, division, lane, role=None): # Read JSONs from file into a list
     statsList = []
     jsonName = getFilepath(tier, division, lane, role)
 
@@ -52,14 +52,14 @@ def calculateQuartiles(list1): # Get the quartile values from a list
     else:
        secondHalf = list1[mid+1:]
 
-    firstQuartile = median(firstHalf)
-    secondQuartile = median(list1)
-    thirdQuartile = median(secondHalf)
+    firstQuartile = round(median(firstHalf), 2)
+    secondQuartile = round(median(list1), 2)
+    thirdQuartile = round(median(secondHalf), 2)
 
     return firstQuartile, secondQuartile, thirdQuartile
 
 
-def getSpecificStatList(tier, division, lane, stat, role=''): # Gets the list of all values in a JSON dump for a specific stat (i.e. kills)
+def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list of all values in a JSON dump for a specific stat (i.e. kills)
     statsList = readMultipleJSONS(tier, division, lane, role)
     returnList = []
 
@@ -69,17 +69,16 @@ def getSpecificStatList(tier, division, lane, stat, role=''): # Gets the list of
     return returnList
 
 
-def compareStat(statList, userAverage): #Compares user stat to quartile values and evaluates
-    first, second, third = calculateQuartiles(statList)
+def compareStat(quartiles, userAverage): # Compares user stat to quartile values and evaluates (quartiles is tuple of 3 values)
 
-    if userAverage > third:
+    if userAverage > quartiles[2]:
+        return 4
+    elif userAverage > quartiles[1]:
         return 3
-    elif userAverage > second:
+    elif userAverage > quartiles[0]:
         return 2
-    elif userAverage > first:
-        return 1
     else:
-        return 0
+        return 1
 
 # def evaluatePlayerStats(tier, division, lane, role=''):
 #
