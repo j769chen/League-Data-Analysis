@@ -1,11 +1,12 @@
 import requests
 import json
 import os
+import math
 from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES
 
 """Module with all data fetching/dumping functions"""
 
-API_KEY= "RGAPI-1547ed9c-ca4a-4587-9572-0981e7bd76c9"
+API_KEY= "RGAPI-c727c2af-6e98-4ce1-b273-3aa351483623"
 REGION = 'na1'
 QUEUE = 'RANKED_SOLO_5x5' # Only interested in ranked solo queue data
 
@@ -56,26 +57,26 @@ def getMatchById(matchId): # Fetch one match's data from its match ID
     return response.json()
 
 
+def preprocessStats(player): # Function to get other calculated stats before analysis
+    if player['stats']['deaths'] != 0:
+        player['stats']['KDA'] = round((player['stats']['kills'] + player['stats']['assists'])/player['stats']['deaths'], 2)
+    else:
+        player['stats']['KDA'] = math.inf
+    player['stats']['CS'] = player['stats']['totalMinionsKilled'] + player['stats']['neutralMinionsKilled']
+    player['stats']['CS/M'] = round(player['stats']['CS']/player['stats']['gameDuration'], 2)
+    player['stats']['DPM'] = round(player['stats']['totalDamageDealtToChampions']/player['stats']['gameDuration'], 2)
+
+
 def getPlayerMatchStats(summonerName, matchId): # Get important stats from one match for a player
     match = getMatchById(matchId)
-    playerStats = {}
-    gameTime = match['gameDuration']/60
     for participants in match['participantIdentities']:
         if participants['player']['summonerName'] == summonerName:
             playerId = participants['participantId']
 
     for players in match['participants']:
         if players['participantId'] == playerId:
-            # playerStats['kills'] = players['stats']['kills']
-            # playerStats['deaths'] = players['stats']['deaths']
-            # playerStats['assists'] = players['stats']['assists']
-            # playerStats['damage'] = players['stats']['totalDamageDealt']
-            # playerStats['DPM'] = round(playerStats['damage']/gameTime, 2)
-            # playerStats['CS'] = players['stats']['totalMinionsKilled'] + players['stats']['neutralMinionsKilled']
-            # playerStats['CSPM'] = round(playerStats['CS']/gameTime, 2)
-            # playerStats['wardsPlaced'] = players['stats']['wardsPlaced']
-            # playerStats['wardsKilled'] = players['stats']['wardsKilled']
-            # playerStats['VisionScore'] = players['stats']['visionScore']
+            players['stats']['gameDuration'] = round(match['gameDuration']/60, 2)
+            preprocessStats(players)
             playerStats = players['stats']
 
     return playerStats
@@ -169,14 +170,14 @@ def generateFiles(): # Reset/Regenerate comparison data directories and create n
                             with open(getFilepath(TIERS[keys], DIVISIONS[division], LANES[lanes]), 'w') as f:
                                 f.write('')
 
-generateFiles()
 
 def recordMatchStats(tier, division, matchId): # Dump stats from a match to the corresponding division/role JSON file
     match = getMatchById(matchId)
-    print(match)
+
     for players in match['participants']:
-        players['gameDuration'] = round(match['gameDuration']/60)
-        print(players['gameDuration'])
+        players['stats']['gameDuration'] = round(match['gameDuration']/60, 2)
+        preprocessStats(players)
+        print(players)
         if players['timeline']['lane'] != 'NONE' and (players['timeline']['lane'] != 'BOTTOM' or
                                                       (players['timeline']['role'] != 'DUO' and
                                                        players['timeline']['role'] != 'SOLO')):  # Error handling since some bugs with role assignments in API
@@ -200,8 +201,11 @@ def getDataForDivision(tier, division='I'): # Get ~10 random matches from player
         matchHistories.append(getMatchHistory(summonerData['accountId']))
 
     for histories in matchHistories: # Get one match from each players match history and dump to file
-        recordMatchStats(tier, division, histories['matches'][0]['gameId'])
+        print(histories)
+        recordMatchStats(tier, division, histories[0]['gameId'])
 
+# generateFiles()
+# getDataForDivision('PLATINUM', 'IV')
 # def getDataForAllDivisions():
 # getDataForDivision('PLATINUM', 'IV')
 # testMatch = getMatchById(3630630530)
