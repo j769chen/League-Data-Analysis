@@ -43,20 +43,27 @@ def getAverageRecordedStats(tier, division, lane, role=None, toFile=True, fromFi
     return averageStats
 
 
-def calculateQuartiles(list1): # Get the quartile values from a list
+def calculatePercentile(list1, userStat): # Takes in a list of stats from JSON dump and gets percentile of the user's stat
+    list1.append(userStat)
     list1.sort()
-    mid = int(len(list1)/2)
-    firstHalf = list1[:mid]
-    if len(list1) % 2 == 0:
-        secondHalf = list1[mid:]
-    else:
-       secondHalf = list1[mid+1:]
 
-    firstQuartile = round(median(firstHalf), 2)
-    secondQuartile = round(median(list1), 2)
-    thirdQuartile = round(median(secondHalf), 2)
+    return (list1.index(userStat)+1)/len(list1) * 100
 
-    return firstQuartile, secondQuartile, thirdQuartile
+
+# def calculateQuartiles(list1): # Get the quartile values from a list
+#     list1.sort()
+#     mid = int(len(list1)/2)
+#     firstHalf = list1[:mid]
+#     if len(list1) % 2 == 0:
+#         secondHalf = list1[mid:]
+#     else:
+#        secondHalf = list1[mid+1:]
+#
+#     firstQuartile = round(median(firstHalf), 2)
+#     secondQuartile = round(median(list1), 2)
+#     thirdQuartile = round(median(secondHalf), 2)
+#
+#     return firstQuartile, secondQuartile, thirdQuartile
 
 
 def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list of all values in a JSON dump for a specific stat (i.e. kills)
@@ -69,21 +76,28 @@ def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list 
     return returnList
 
 
-def compareStat(quartiles, userAverage): # Compares user stat to quartile values and evaluates (quartiles is tuple of 3 values)
-
-    if userAverage > quartiles[2]:
-        return 4
-    elif userAverage > quartiles[1]:
-        return 3
-    elif userAverage > quartiles[0]:
-        return 2
-    else:
-        return 1
-
-# def evaluatePlayerStats(tier, division, lane, role=''):
+# def compareStat(quartiles, userAverage): # Compares user stat to quartile values and evaluates (quartiles is tuple of 3 values)
 #
+#     if userAverage > quartiles[2]:
+#         return 25
+#     elif userAverage > quartiles[1]:
+#         return 50
+#     elif userAverage > quartiles[0]:
+#         return 75
+#     else:
+#         return 100
 
 
+def evaluatePlayerStats(tier, division, lane, userStats, importantStats, role=None):
+    averageUserStats = getAverageRecordedStats(tier, division, lane, role, False, False, userStats)
+
+    statsPercentiles = {}
+
+    for stats in importantStats:
+        statsPercentiles[stats] = calculatePercentile(getSpecificStatList(tier, division, lane, stats, role), averageUserStats[stats])
+
+    for stats in statsPercentiles:
+        print("You are in the top {}% of {} {} players for {}.".format(statsPercentiles[stats], tier, division, stats))
 
 
 

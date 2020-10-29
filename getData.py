@@ -6,7 +6,7 @@ from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES
 
 """Module with all data fetching/dumping functions"""
 
-API_KEY= "RGAPI-c727c2af-6e98-4ce1-b273-3aa351483623"
+API_KEY= "RGAPI-e02d0107-3dfb-422f-9776-a5177876b6b9"
 REGION = 'na1'
 QUEUE = 'RANKED_SOLO_5x5' # Only interested in ranked solo queue data
 

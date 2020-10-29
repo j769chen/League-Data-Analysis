@@ -116,12 +116,13 @@ STATS_WEIGHTINGS = {
     }
 }
 
-formalNames = {
+FORMAL_NAMES = {
     "kills": "Kills",
     "deaths": "Deaths",
     "assists": "Assists",
     "KDA": "KD/A Ratio",
-    "totalDamageDealtToChampions": "Damage Dealt to Champion",
+    "DPM": "Damage Per Minute",
+    "totalDamageDealtToChampions": "Damage Dealt to Champions",
     "CS": "Creep Score",
     "CS/M": "Creep Score per Minute",
     "visionScore": "Vision Score",
