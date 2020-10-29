@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+from tabulate import tabulate
 from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS, FORMAL_NAMES
 import getData
 import analysis
@@ -20,7 +21,11 @@ def main(summonerName, numGames, champion, lane, role=None):
     else:
         importantStats = STATS_WEIGHTINGS[lane]
 
-    analysis.evaluatePlayerStats(tier, division, lane, userStats, importantStats, role)
+    statNames = []
+    for keys in importantStats:
+        statNames.append(FORMAL_NAMES[keys])
+
+    analysis.analyze(userStats, statNames, importantStats, tier, division, lane, role)
 
 
 if __name__ == "__main__":

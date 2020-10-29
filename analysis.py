@@ -1,7 +1,7 @@
 import requests
 import json
 import os
-from statistics import median
+from tabulate import tabulate
 from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS
 from getData import getFilepath
 
@@ -43,11 +43,62 @@ def getAverageRecordedStats(tier, division, lane, role=None, toFile=True, fromFi
     return averageStats
 
 
+def insertionSort(list1): # Simple, O(n^2) sorts better for smaller datasets since you don't perform unecessary recursion
+    for i in range(1, len(list1)):
+        j = i - 1
+        key = list1[i]
+        while j >= 0 and key < list1[j]:
+            list1[j+1] = list1[j]
+            j -= 1
+        list1[j+1] = key
+
+
+def getPivot(list1, low, high): # Implement "median of three" pivot selection rule to account for worst case of near sorted list
+    sorted([list1[(high + low) // 2], low, high])
+    return int(sorted([list1[(high + low) // 2], low, high])[1])
+
+
+def partition(list1, low, high):
+    pivotIndex = getPivot(list1, low, high)
+    list1[pivotIndex], list1[low] = list1[low], list1[pivotIndex] # Swap pivot into index 0
+    pivotValue = list1[low]
+    i = low - 1
+    j = high + 1
+
+    while True:
+        i = i + 1
+        j = j - 1
+        while list1[i] < pivotValue:
+            i = i + 1
+        while list1[j] > pivotValue:
+            j = j - 1
+        if i >= j:
+            return j
+        list1[i], list1[j] = list1[j], list1[i]
+
+
+def quickSortHelper(list1, low, high):
+    if len(list1) <= 20: # If small list, avoid unnecessary recursion w/ quicksort by using insertion sort
+        insertionSort(list1)
+    elif low < high:
+
+        p = partition(list1, low, high)
+
+        quickSortHelper(list1, low, p)
+        quickSortHelper(list1, p + 1, high)
+
+
+def quickSort(list1):
+    low = 0
+    high = len(list1) - 1
+    quickSortHelper(list1, low, high)
+
+
 def calculatePercentile(list1, userStat): # Takes in a list of stats from JSON dump and gets percentile of the user's stat
     list1.append(userStat)
-    list1.sort()
+    quickSort(list1)
 
-    return (list1.index(userStat)+1)/len(list1) * 100
+    return round(100 - (list1.index(userStat)+1)/len(list1) * 100,2) # Generally if you are good, we say "you are among the top 1%", not top 100%, so return 100 - percentile of player
 
 
 # def calculateQuartiles(list1): # Get the quartile values from a list
@@ -76,6 +127,12 @@ def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list 
     return returnList
 
 
+def filterImportantStats(statsDict, importantStats): # Filters out non important stats based on respective STATS_WEIGHTINGS dict
+    unwantedKeys = set(statsDict.keys()) - set(importantStats.keys())
+    for keys in unwantedKeys:
+        del statsDict[keys]
+
+
 # def compareStat(quartiles, userAverage): # Compares user stat to quartile values and evaluates (quartiles is tuple of 3 values)
 #
 #     if userAverage > quartiles[2]:
@@ -87,17 +144,46 @@ def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list 
 #     else:
 #         return 100
 
+# def tabulateStats(headers, *args):
+#     rows = []
+#     for i in args:
+#         rows.append(i)
+#
+#     return tabulate(rows, headers)
 
-def evaluatePlayerStats(tier, division, lane, userStats, importantStats, role=None):
-    averageUserStats = getAverageRecordedStats(tier, division, lane, role, False, False, userStats)
 
+def getUserAndAverageTables(statNames, userStats, averageUserStats, averageELOStats): # Get tables for user's recent matches and comparison of average stats
+    statTableValues = []
+
+    for gameStats in userStats:
+        statTableValues.append(gameStats.values())
+
+
+    averageTableValues = [averageUserStats.values(), averageELOStats.values()]
+
+    return tabulate(statTableValues, statNames), tabulate(averageTableValues, statNames)
+
+
+def evaluatePlayerStatsPercentiles(tier, division, lane, averageUserStats, importantStats, role=None): # Returns a dictionary where the keys are stats and the values are the players percentile compared to players of the same ELO
     statsPercentiles = {}
 
     for stats in importantStats:
         statsPercentiles[stats] = calculatePercentile(getSpecificStatList(tier, division, lane, stats, role), averageUserStats[stats])
 
-    for stats in statsPercentiles:
-        print("You are in the top {}% of {} {} players for {}.".format(statsPercentiles[stats], tier, division, stats))
+    return statsPercentiles
+
+# def generateTips():
 
 
+def analyze(userStats, statNames, importantStats, tier, division, lane, role):
+    for gameStats in userStats:
+        filterImportantStats(gameStats, importantStats)
 
+    averageUserStats = getAverageRecordedStats(tier, division, lane, role, False, False, userStats) # Get average user stats
+
+    averageELOStats = getAverageRecordedStats(tier, division, lane, role, False, True) # Get average stats for ELO from JSON dump
+    filterImportantStats(averageELOStats, importantStats)
+    userStatsTable, comparisonStatsTable = getUserAndAverageTables(statNames, userStats, averageUserStats, averageELOStats)
+
+    print(userStatsTable)
+    print(comparisonStatsTable)

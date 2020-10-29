@@ -39,11 +39,12 @@ def getRankedTier(tier, division=None): # Get random players from a specific div
 
 
 def getMatchHistory(accountID, champion=None): # Get a user's match history with option of filtering by champion
-    baseURL = "https://{}.api.riotgames.com/lol/match/v4/matchlists/by-account/".format(REGION)
-    if champion == None:
-        URL = baseURL + "{}?api_key={}".format(accountID, API_KEY)
+    baseURL = "https://{}.api.riotgames.com/lol/match/v4/matchlists/by-account/{}?queue=420&queue=430&queue=440".format(REGION, accountID)
+
+    if champion:
+        URL = baseURL + "&champion={}&api_key={}".format(champion, API_KEY)
     else:
-        URL = baseURL + "{}?champion={}&api_key={}".format(accountID, champion, API_KEY)
+        URL = baseURL + "&api_key={}".format(API_KEY)
     response = requests.get(URL)
 
     return response.json()['matches']
@@ -91,10 +92,13 @@ def filterMatchList(matchList, lane, role, numGames): # Filters match history by
         filterParam = lane
         query = 'lane'
 
-    print(matchList)
     for matches in matchList:
-        if matches[query] == filterParam:
-            filteredMatchList.append(matches)
+        if filterParam == BOT_ROLES['Support']: # Error handling for other lanes having DUO_SUPPORT role tag
+            if matches['lane'] == lane and matches[query] == filterParam:
+                filteredMatchList.append(matches)
+        else:
+            if matches[query] == filterParam:
+                filteredMatchList.append(matches)
 
         if len(filteredMatchList) == numGames:
             break
@@ -201,7 +205,6 @@ def getDataForDivision(tier, division='I'): # Get ~10 random matches from player
         matchHistories.append(getMatchHistory(summonerData['accountId']))
 
     for histories in matchHistories: # Get one match from each players match history and dump to file
-        print(histories)
         recordMatchStats(tier, division, histories[0]['gameId'])
 
 # generateFiles()
