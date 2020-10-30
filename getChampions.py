@@ -5,8 +5,9 @@ Separate from other module as this uses the riotwatcher library, since it can ge
 
 import json
 from riotwatcher import LolWatcher
+from getData import API_KEY
 
-lol_watcher = LolWatcher('RGAPI-1547ed9c-ca4a-4587-9572-0981e7bd76c9')
+lol_watcher = LolWatcher(API_KEY)
 
 my_region = 'na1'
 

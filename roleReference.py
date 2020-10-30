@@ -39,10 +39,10 @@ BOT_ROLES = {
 STATS_WEIGHTINGS = {
     LANES['Top']: {
         "kills": 0.15,
-        "deaths": -0.1,
+        "deaths": -0.025,
         "assists": 0.1,
         "totalDamageDealtToChampions": 0,
-        "damageDealtToTurrets": 0.1,
+        "damageDealtToTurrets": 0.05,
         "visionScore": 0.2,
         "timeCCingOthers": 0.05,
         "visionWardsBoughtInGame": 0,
@@ -50,12 +50,12 @@ STATS_WEIGHTINGS = {
         "wardsKilled": 0,
         "KDA": 0,
         "CS": 0,
-        "CS/M": 0.3,
+        "CS/M": 0.25,
         "DPM": 0.2
     },
     LANES['Jungle']: {
         "kills": 0.05,
-        "deaths": -0.15,
+        "deaths": -0.025,
         "assists": 0.15,
         "totalDamageDealtToChampions": 0,
         "visionScore": 0.3,
@@ -65,16 +65,29 @@ STATS_WEIGHTINGS = {
         "wardsKilled": 0,
         "KDA": 0,
         "CS": 0,
-        "CS/M": 0.3,
+        "CS/M": 0.2,
         "DPM": 0.25
     },
     LANES['Middle']:  {
         "kills": 0.2,
-        "deaths": -0.2,
+        "deaths": -0.05,
         "assists": 0.1,
         "totalDamageDealtToChampions": 0,
-        "visionScore": 0.25,
-        "timeCCingOthers": 0.05,
+        "visionScore": 0.2,
+        "visionWardsBoughtInGame": 0,
+        "wardsPlaced": 0,
+        "wardsKilled": 0,
+        "KDA": 0,
+        "CS": 0,
+        "CS/M": 0.25,
+        "DPM": 0.25
+    },
+    BOT_ROLES['ADC']:  {
+        "kills": 0.2,
+        "deaths": -0.05,
+        "assists": 0.1,
+        "totalDamageDealtToChampions": 0,
+        "visionScore": 0.1,
         "goldEarned": 0.05,
         "visionWardsBoughtInGame": 0,
         "wardsPlaced": 0,
@@ -84,29 +97,13 @@ STATS_WEIGHTINGS = {
         "CS/M": 0.3,
         "DPM": 0.25
     },
-    BOT_ROLES['ADC']:  {
-        "kills": 0.2,
-        "deaths": -0.2,
-        "assists": 0.1,
-        "totalDamageDealtToChampions": 0,
-        "visionScore": 0.15,
-        "goldEarned": 0.1,
-        "visionWardsBoughtInGame": 0,
-        "wardsPlaced": 0,
-        "wardsKilled": 0,
-        "KDA": 0,
-        "CS": 0,
-        "CS/M": 0.35,
-        "DPM": 0.3
-    },
     BOT_ROLES['Support']:  {
         "kills": 0.025,
-        "deaths": -0.1,
+        "deaths": -0.025,
         "assists": 0.25,
         "totalDamageDealtToChampions": 0,
         "visionScore": 0.4,
-        "timeCCingOthers": 0.3,
-        "goldEarned": 0.05,
+        "timeCCingOthers": 0.25,
         "visionWardsBoughtInGame": 0,
         "wardsPlaced": 0,
         "wardsKilled": 0,
@@ -132,4 +129,13 @@ FORMAL_NAMES = {
     "timeCCingOthers": "CC Score",
     "goldEarned": "GP",
     "damageDealtToTurrets": "Damage to Towers"
+}
+
+# Any percentage above letter's value corresponds to that letter grade
+LETTER_GRADES = {
+    "S": 0.8,
+    "A": 0.6,
+    "B": 0.4,
+    "C": 0.2,
+    "D": 0
 }

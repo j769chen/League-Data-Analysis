@@ -2,7 +2,7 @@ import requests
 import json
 import os
 from tabulate import tabulate
-from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS
+from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS, LETTER_GRADES
 from getData import getFilepath
 
 
@@ -98,23 +98,7 @@ def calculatePercentile(list1, userStat): # Takes in a list of stats from JSON d
     list1.append(userStat)
     quickSort(list1)
 
-    return round(100 - (list1.index(userStat)+1)/len(list1) * 100,2) # Generally if you are good, we say "you are among the top 1%", not top 100%, so return 100 - percentile of player
-
-
-# def calculateQuartiles(list1): # Get the quartile values from a list
-#     list1.sort()
-#     mid = int(len(list1)/2)
-#     firstHalf = list1[:mid]
-#     if len(list1) % 2 == 0:
-#         secondHalf = list1[mid:]
-#     else:
-#        secondHalf = list1[mid+1:]
-#
-#     firstQuartile = round(median(firstHalf), 2)
-#     secondQuartile = round(median(list1), 2)
-#     thirdQuartile = round(median(secondHalf), 2)
-#
-#     return firstQuartile, secondQuartile, thirdQuartile
+    return round((list1.index(userStat)+1)/len(list1) * 100, 2) # Generally if you are good, we say "you are among the top 1%", not top 100%, so return 100 - percentile of player
 
 
 def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list of all values in a JSON dump for a specific stat (i.e. kills)
@@ -133,31 +117,11 @@ def filterImportantStats(statsDict, importantStats): # Filters out non important
         del statsDict[keys]
 
 
-# def compareStat(quartiles, userAverage): # Compares user stat to quartile values and evaluates (quartiles is tuple of 3 values)
-#
-#     if userAverage > quartiles[2]:
-#         return 25
-#     elif userAverage > quartiles[1]:
-#         return 50
-#     elif userAverage > quartiles[0]:
-#         return 75
-#     else:
-#         return 100
-
-# def tabulateStats(headers, *args):
-#     rows = []
-#     for i in args:
-#         rows.append(i)
-#
-#     return tabulate(rows, headers)
-
-
 def getUserAndAverageTables(statNames, userStats, averageUserStats, averageELOStats): # Get tables for user's recent matches and comparison of average stats
     statTableValues = []
 
     for gameStats in userStats:
         statTableValues.append(gameStats.values())
-
 
     averageTableValues = [averageUserStats.values(), averageELOStats.values()]
 
@@ -172,6 +136,36 @@ def evaluatePlayerStatsPercentiles(tier, division, lane, averageUserStats, impor
 
     return statsPercentiles
 
+
+def calculateLetterGrade(statsPercentiles, importantStats):
+    """
+    Letter grade calculation done as follows:
+    For each role, different stats have different weigtings as outlined in the STATS_WEIGHTINGS dictionary in roleReference.
+
+    For all roles, excluding deaths, all stat weightings add up to a total of 1, i.e. a perfect score with 0 deaths = 1/1 = 100%.
+
+    Your score for each stat is determined by your percentile in that stat compared to average players in your elo:
+        Example: I am in the top 20% of players for kills as an ADC, then my score out of 0.2 for kills is 80/100 * 0.2 = 0.16
+    (If your stat is greater than 80% of players, generally say you are in top 20%)
+
+    These values are calculated for each stat, and summed to get your raw total score.
+
+    Your total score is then calculated by subtracting your percentile in deaths multiplied by the weighting of deaths for
+    your respective role from your raw total score for N stats:
+        Score = ((stat1 * weighting1 + stat2 * weigthing2 ... statN * weightingN) / 1) - (deaths * deathweighting)
+    """
+
+    percentage = 0
+
+    for stats in statsPercentiles:
+        percentage += (statsPercentiles[stats]/100)*importantStats[stats] # Multiply the weighting of each stat by user's performance, measured by percentile where higher is better
+
+    for grades in LETTER_GRADES:
+        if percentage >= LETTER_GRADES[grades]:
+            return grades
+
+    return -1  # In case something goes wrong, return -1 to indicate error
+
 # def generateTips():
 
 
@@ -185,5 +179,12 @@ def analyze(userStats, statNames, importantStats, tier, division, lane, role):
     filterImportantStats(averageELOStats, importantStats)
     userStatsTable, comparisonStatsTable = getUserAndAverageTables(statNames, userStats, averageUserStats, averageELOStats)
 
-    print(userStatsTable)
-    print(comparisonStatsTable)
+    statsPercentiles = evaluatePlayerStatsPercentiles(tier, division, lane, averageUserStats, importantStats, role)
+
+    letterGrade = calculateLetterGrade(statsPercentiles, importantStats)
+
+    print(letterGrade)
+
+
+
+
