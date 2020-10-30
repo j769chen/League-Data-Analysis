@@ -51,7 +51,8 @@ STATS_WEIGHTINGS = {
         "KDA": 0,
         "CS": 0,
         "CS/M": 0.25,
-        "DPM": 0.2
+        "DPM": 0.2,
+        "earlyGameXp": 0
     },
     LANES['Jungle']: {
         "kills": 0.05,
@@ -66,7 +67,8 @@ STATS_WEIGHTINGS = {
         "KDA": 0,
         "CS": 0,
         "CS/M": 0.2,
-        "DPM": 0.25
+        "DPM": 0.25,
+        "earlyGameXp": 0
     },
     LANES['Middle']:  {
         "kills": 0.2,
@@ -80,7 +82,8 @@ STATS_WEIGHTINGS = {
         "KDA": 0,
         "CS": 0,
         "CS/M": 0.25,
-        "DPM": 0.25
+        "DPM": 0.25,
+        "earlyGameXp": 0
     },
     BOT_ROLES['ADC']:  {
         "kills": 0.2,
@@ -95,7 +98,8 @@ STATS_WEIGHTINGS = {
         "KDA": 0,
         "CS": 0,
         "CS/M": 0.3,
-        "DPM": 0.25
+        "DPM": 0.25,
+        "earlyGameXp": 0
     },
     BOT_ROLES['Support']:  {
         "kills": 0.025,
@@ -109,7 +113,8 @@ STATS_WEIGHTINGS = {
         "wardsKilled": 0,
         "KDA": 0,
         "CS": 0,
-        "DPM": 0.075
+        "DPM": 0.075,
+        "earlyGameXp": 0
     }
 }
 
@@ -128,7 +133,8 @@ FORMAL_NAMES = {
     "wardsKilled": "Wards Killed",
     "timeCCingOthers": "CC Score",
     "goldEarned": "GP",
-    "damageDealtToTurrets": "Damage to Towers"
+    "damageDealtToTurrets": "Damage to Towers",
+    "earlyGameXp": "XP Per Min"
 }
 
 # Any percentage above letter's value corresponds to that letter grade

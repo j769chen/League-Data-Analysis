@@ -66,6 +66,7 @@ def preprocessStats(player): # Function to get other calculated stats before ana
     player['stats']['CS'] = player['stats']['totalMinionsKilled'] + player['stats']['neutralMinionsKilled']
     player['stats']['CS/M'] = round(player['stats']['CS']/player['stats']['gameDuration'], 2)
     player['stats']['DPM'] = round(player['stats']['totalDamageDealtToChampions']/player['stats']['gameDuration'], 2)
+    player['stats']['earlyGameXp'] = player['timeline']['xpPerMinDeltas']['0-10']
 
 
 def getPlayerMatchStats(summonerName, matchId): # Get important stats from one match for a player
@@ -177,11 +178,11 @@ def generateFiles(): # Reset/Regenerate comparison data directories and create n
 
 def recordMatchStats(tier, division, matchId): # Dump stats from a match to the corresponding division/role JSON file
     match = getMatchById(matchId)
-
+    print(match)
     for players in match['participants']:
         players['stats']['gameDuration'] = round(match['gameDuration']/60, 2)
-        preprocessStats(players)
         print(players)
+        preprocessStats(players)
         if players['timeline']['lane'] != 'NONE' and (players['timeline']['lane'] != 'BOTTOM' or
                                                       (players['timeline']['role'] != 'DUO' and
                                                        players['timeline']['role'] != 'SOLO')):  # Error handling since some bugs with role assignments in API
