@@ -1,5 +1,6 @@
 import requests
 import json
+import sys
 import os
 import math
 import time
@@ -7,7 +8,7 @@ from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES
 
 """Module with all data fetching/dumping functions"""
 
-API_KEY= "RGAPI-fae4124d-947c-424e-a567-cdbea9687413"
+API_KEY= "RGAPI-75e1e9cd-80a2-4be5-b69f-60f91e4ccbc6"
 REGION = 'na1'
 QUEUE = 'RANKED_SOLO_5x5'  # Only interested in ranked solo queue data
 
@@ -17,7 +18,16 @@ numrequests = 0
 def tooManyRequestsError(jsonResponse):  # Function to inform user if they cap out on API requests
     if jsonResponse == {'status': {'message': 'Gateway timeout', 'status_code': 504}}:
         print('ERROR: You have exceeded the maximum number of requests to the Riot API')
-        return - 1
+        print(jsonResponse)
+        return -1
+    return 0
+
+
+def summonerNotFoundError(jsonResponse):
+    if jsonResponse == {'status': {'message': 'Data not found - summoner not found', 'status_code': 404}}:
+        print('ERROR: You have entered an invalid summoner name, please try again')
+        print(jsonResponse)
+        return -1
     return 0
 
 
@@ -30,6 +40,7 @@ def requestSummonerData(summonerName):  # Get a summoner's profile based on thei
 
     jsonResponse = response.json()
     tooManyRequestsError(jsonResponse)
+    summonerNotFoundError(jsonResponse)
     return jsonResponse
 
 
@@ -53,7 +64,6 @@ def requestRankedTier(tier, division=None):  # Get random players from a specifi
     else:
         URL = baseURL + "/entries/{}/{}/{}?api_key={}".format(QUEUE, tier, division, API_KEY)
 
-    print(URL)
     response = requests.get(URL)
 
     global numrequests
@@ -75,7 +85,9 @@ def requestMatchHistory(accountID, champion=None):  # Get a user's match history
 
     global numrequests
     numrequests += 1
+
     jsonResponse = response.json()
+    print(jsonResponse)
     tooManyRequestsError(jsonResponse)
     return jsonResponse['matches']
 
@@ -139,15 +151,21 @@ def filterMatchList(matchList, lane, role, numGames):  # Filters match history b
         if len(filteredMatchList) == numGames:
             break
 
+    if len(filteredMatchList) == 0:
+        print("There you have played 0 games of {} in your recent match history, exiting program.".format(filterParam))
+        sys.exit()
     if len(filteredMatchList) < numGames:
         print("Not enough games, we managed to find {} games in your recent match history as {}".
               format(len(filteredMatchList), filterParam))
+
 
     return filteredMatchList
 
 
 def getUsersStatsToReview(summonerName, lane, numGames, role=None, champion=None):  # Gets users stats for last numGames games from their summoner name, filtering by role and optionally filtering by champions
     summonerInfo = requestSummonerData(summonerName)
+    summonerName = summonerInfo['name']  # This corrects any errors in case sensitivity that the user may have entered, since the summoner API is not case sensitive but the ranked data API is.
+
     rankedInfo = requestRankedData(summonerInfo)
 
     for leagues in rankedInfo:
@@ -155,10 +173,11 @@ def getUsersStatsToReview(summonerName, lane, numGames, role=None, champion=None
             tier, division = leagues['tier'], leagues['rank']
 
     matchHistory = requestMatchHistory(summonerInfo['accountId'], champion)
+    print(matchHistory)
     userStats = []
 
     filteredMatchList = filterMatchList(matchHistory, lane, role, numGames)
-
+    print(filteredMatchList)
     for matches in filteredMatchList:
         userStats.append(getPlayerMatchStats(summonerName, matches['gameId']))  # Returns list of user stats
 
@@ -230,7 +249,7 @@ def recordMatchStats(tier, division, matchId):  # Dump stats from a match to the
 def getDataForDivision(tier, division='I'):  # Get ~10 random matches from players that are in a specific tier and division, excluding those with deprecated roles
     rankedTier = requestRankedTier(tier, division)
     matchHistories = []
-    print(rankedTier)
+
     for i in range(10): # Get match histories from 10 random players in the current tier
         if tier == TIERS['Master'] or tier == TIERS['Grandmaster'] or tier == TIERS['Challenger']:
             summonerData = requestSummonerData(rankedTier['entries'][i]['summonerName'])

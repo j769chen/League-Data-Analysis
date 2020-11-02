@@ -32,7 +32,7 @@ if __name__ == "__main__":
     numGames = 0
     print("Welcome to int.gg, an app to see if you've been running it down!")
 
-    summonerName = input("Please enter your summoner name (case sensitive): ")
+    summonerName = input("Please enter your summoner name: ")
 
     while numGames <= 0 or numGames > 10:
         try:
@@ -42,19 +42,37 @@ if __name__ == "__main__":
         except ValueError:
             print("That input is not an integer!")
 
-    champion = input("If you would like your matches on a specific champion to be reviewed, please enter that "
-                     "champion's name here. If not, click enter: ")
+    with open("championsDict.json", "r") as infile:
+        championDict = json.load(infile)
+        champion = None
+        while champion not in championDict and champion != "":
+            champion = input("If you would like your matches on a specific champion to be reviewed, please enter that "
+                             "champion's name here. If not, click enter: ")
 
-    if champion == "":
-        championNum = None
-    else:
-        with open("championsDict.json", "r") as infile:
-            championDict = json.load(infile)
+            if champion not in championDict and champion != "":
+                print("That is not a valid champion!")
+
+        if champion == "":
+            championNum = None
+        else:
             championNum = championDict[champion]
 
-    lane = input("Please enter which lane you would like your games to be reviewed for (Top, Jungle, Middle, Bottom): ")
+    lane = ""
+    while lane != 'Top' and lane != 'Jungle' and lane != 'Middle' and lane != 'Bottom':
+        lane = input("Please enter which lane you would like your games to be reviewed for (Top, Jungle, Middle, "
+                     "Bottom): ")
+
+        if lane != 'Top' and lane != 'Jungle' and lane != 'Middle' and lane != 'Bottom':
+            print("That is not a valid lane!")
+
     if lane == 'Bottom':
-        role = input("Please enter if you play ADC or Support (ADC, Support): ")
+        role = ""
+        while role != 'ADC' and role != 'Support':
+            role = input("Please enter if you play ADC or Support (ADC, Support): ")
+
+            if role != 'ADC' and role != 'Support':
+                print("That is not a valid role!")
+
         main(summonerName, numGames, championNum, LANES[lane], BOT_ROLES[role])
     elif lane == 'Middle':
         main(summonerName, numGames, championNum, LANES['Middle(Match History)'])

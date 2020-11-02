@@ -108,7 +108,7 @@ def quickSort(list1, ascending=True):  # Quicksort function with option to sort 
 def calculatePercentile(list1, userStat, statName): # Takes in a list of stats from JSON dump and gets percentile of the user's stat
     list1.append(userStat)
 
-    if statName == 'deaths': # For deaths, less is better
+    if statName == 'deaths':  # For deaths, less is better
         ascending = False
     else:
         ascending = True
@@ -207,9 +207,14 @@ def congratulateUser(excellentStats, averageUserStats, tier, division, lane, rol
     congratulations = []
 
     for stats in excellentStats:
-        congratulations.append("You are among the top 20% of {} {} {} {} players in terms of {}, with an average of {} "
-                               "per game.".format(tier, division, lane, role, FORMAL_NAMES[stats], averageUserStats[stats]))
-
+        if lane == LANES['Bottom']:
+            congratulations.append(
+                "You are among the top 20% of {} {} {} {} players in terms of {}, with an average of {} "
+                "per game.".format(tier, division, lane, role, FORMAL_NAMES[stats], averageUserStats[stats]))
+        else:
+            congratulations.append(
+                "You are among the top 20% of {} {} {} players in terms of {}, with an average of {} "
+                "per game.".format(tier, division, lane, FORMAL_NAMES[stats], averageUserStats[stats]))
     return congratulations
 
 
