@@ -1,17 +1,11 @@
-import requests
 import json
-import os
-from tabulate import tabulate
-from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS, FORMAL_NAMES
+from roleReference import LANES, BOT_ROLES, STATS_WEIGHTINGS, FORMAL_NAMES
 import getData
 import analysis
 
 
 def main(summonerName, numGames, champion, lane, role=None):
-    if role == None:
-        userStats, tier, division = getData.getUsersStatsToReview(summonerName, lane, numGames, champion)
-    else:
-        userStats, tier, division = getData.getUsersStatsToReview(summonerName, lane, numGames, role, champion)
+    userStats, tier, division, actualNumGames = getData.getUsersStatsToReview(summonerName, lane, numGames, role, champion)
 
     if lane == LANES['Middle(Match History)']:  # Change this back so that it is 'MIDDLE' for match analysis. See roleReference line 26 for reasoning
         lane = LANES['Middle']
@@ -25,7 +19,35 @@ def main(summonerName, numGames, champion, lane, role=None):
     for keys in importantStats:
         statNames.append(FORMAL_NAMES[keys])
 
-    analysis.analyze(userStats, statNames, importantStats, tier, division, lane, role)
+    userStatsTable, comparionStatsTable, statsPercentiles, letterGrade, congratsMsg, listOfTips = analysis.analyze(userStats, statNames, importantStats, tier, division, lane, role)
+
+    print("Here is your evaluation:")
+    print("Your stats for the past {} games:".format(actualNumGames))
+    print(userStatsTable + '\n')
+    if lane == LANES['Bottom']:
+        print("Here are your average stats compared to the average {} {} {} player".format(tier, division, role))
+    else:
+        print("Here are your average stats compared to the average {} {} {} player".format(tier, division, lane))
+    print(comparionStatsTable + '\n')
+
+    for stats in statsPercentiles:
+        if lane == LANES['Bottom']:
+            print("You are within the top {} of {} {} {} players in terms of {}".format(100-statsPercentiles[stats],
+                                                                                        tier, division, role, stats))
+        else:
+            print("You are within the top {} of {} {} {} players in terms of {}".format(100 - statsPercentiles[stats],
+                                                                                        tier, division, lane, stats))
+
+    print("Your overall performance: {} \n".format(letterGrade))
+
+    print("Here are some things you do well in game:")
+    for comment in congratsMsg:
+        print(comment)
+
+    print("\n")
+    print("Here are some things you should try to improve on: \n")
+    for comment in listOfTips:
+        print(comment)
 
 
 if __name__ == "__main__":

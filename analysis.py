@@ -1,8 +1,6 @@
-import requests
 import json
-import os
 from tabulate import tabulate
-from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES, STATS_WEIGHTINGS, LETTER_GRADES, FORMAL_NAMES
+from roleReference import LANES, BOT_ROLES, LETTER_GRADES, FORMAL_NAMES
 from getData import getFilepath
 
 
@@ -272,7 +270,7 @@ def generateTips(belowAverageStats, averageUserStats, lane, role):  # Generates 
 
         if 'DPM' in belowAverageStats:
             listOfTips.append("Your DPM is quite low for a mid laner, at only {}. Mid laners are generally supposed to serve"
-                              "as either the primary or secondary damage source. You may need to improve your mechanics"
+                              "as either the primary or secondary damage source. You may need to improve your mechanics "
                               "and team fighting".format(averageUserStats['DPM']))
     elif lane == LANES['Bottom']:
         if role == BOT_ROLES['ADC']:
@@ -313,8 +311,7 @@ def generateTakeaways(statsPercentiles, averageUserStats, tier, division, lane, 
 
     listOfTips = generateTips(belowAverageStats, averageUserStats, lane, role)
 
-    print(userCongratulations)
-    print(listOfTips)
+    return userCongratulations, listOfTips
 
 
 def analyze(userStats, statNames, importantStats, tier, division, lane, role):
@@ -331,4 +328,6 @@ def analyze(userStats, statNames, importantStats, tier, division, lane, role):
 
     letterGrade = calculateLetterGrade(statsPercentiles, importantStats)
 
-    generateTakeaways(statsPercentiles, averageUserStats, tier, division, lane, role)
+    congratsMsg, listOfTips = generateTakeaways(statsPercentiles, averageUserStats, tier, division, lane, role)
+
+    return userStatsTable, comparisonStatsTable, statsPercentiles, letterGrade, congratsMsg, listOfTips

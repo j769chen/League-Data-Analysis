@@ -19,15 +19,23 @@ def tooManyRequestsError(jsonResponse):  # Function to inform user if they cap o
     if jsonResponse == {'status': {'message': 'Gateway timeout', 'status_code': 504}}:
         print('ERROR: You have exceeded the maximum number of requests to the Riot API')
         print(jsonResponse)
-        return -1
+        sys.exit(-1)
     return 0
 
 
-def summonerNotFoundError(jsonResponse):
+def summonerNotFoundError(jsonResponse):  # Error handling to inform user if they entered an invalid summoner name
     if jsonResponse == {'status': {'message': 'Data not found - summoner not found', 'status_code': 404}}:
         print('ERROR: You have entered an invalid summoner name, please try again')
         print(jsonResponse)
-        return -1
+        sys.exit(-1)
+    return 0
+
+
+def matchesNotFoundError(jsonResponse):  # Error handling for champion/lane/role combinations that the player has 0 matches on
+    if jsonResponse == {'status': {'status_code': 404, 'message': 'Not found'}}:
+        print('ERROR: You have played 0 games of that champion/lane')
+        print(jsonResponse)
+        sys.exit(-1)
     return 0
 
 
@@ -76,7 +84,6 @@ def requestRankedTier(tier, division=None):  # Get random players from a specifi
 
 def requestMatchHistory(accountID, champion=None):  # Get a user's match history with option of filtering by champion
     baseURL = "https://{}.api.riotgames.com/lol/match/v4/matchlists/by-account/{}?queue=420&queue=430&queue=440".format(REGION, accountID)
-
     if champion:
         URL = baseURL + "&champion={}&api_key={}".format(champion, API_KEY)
     else:
@@ -87,8 +94,8 @@ def requestMatchHistory(accountID, champion=None):  # Get a user's match history
     numrequests += 1
 
     jsonResponse = response.json()
-    print(jsonResponse)
     tooManyRequestsError(jsonResponse)
+    matchesNotFoundError(jsonResponse)
     return jsonResponse['matches']
 
 
@@ -158,7 +165,6 @@ def filterMatchList(matchList, lane, role, numGames):  # Filters match history b
         print("Not enough games, we managed to find {} games in your recent match history as {}".
               format(len(filteredMatchList), filterParam))
 
-
     return filteredMatchList
 
 
@@ -181,7 +187,7 @@ def getUsersStatsToReview(summonerName, lane, numGames, role=None, champion=None
     for matches in filteredMatchList:
         userStats.append(getPlayerMatchStats(summonerName, matches['gameId']))  # Returns list of user stats
 
-    return userStats, tier, division
+    return userStats, tier, division, len(filteredMatchList)
 
 
 def getFilepath(tier, division, lane, role='', average=False):
