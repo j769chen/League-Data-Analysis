@@ -113,7 +113,7 @@ def calculatePercentile(list1, userStat, statName): # Takes in a list of stats f
 
     quickSort(list1, ascending)
 
-    return round((list1.index(userStat)+1)/len(list1) * 100, 2) # Generally if you are good, we say "you are among the top 1%", not top 100%, so return 100 - percentile of player
+    return round((list1.index(userStat)+1)/len(list1) * 100, 2)
 
 
 def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list of all values in a JSON dump for a specific stat (i.e. kills)
@@ -225,7 +225,7 @@ def generateTips(belowAverageStats, averageUserStats, lane, role):  # Generates 
             listOfTips.append("You seem to be dying a lot and consistently have low vision scores, averaging {} deaths "
                               "and a vision score of only {} per game. Try placing more wards to prevent ganks."
                               .format(averageUserStats['deaths'], averageUserStats['visionScore']))
-        elif 'earlyGameXp' in belowAverageStats: # When you die, you miss xp, so if you die alot your early game xp will be lower
+        elif 'earlyGameXp' in belowAverageStats:  # When you die, you miss xp, so if you die alot your early game xp will be lower
             listOfTips.append("You seem to be dying a lot in lane, averaging {} deaths per game. try to learn how to "
                               "play around waves, trade at optimal times, and understand your matchups better"
                               .format(averageUserStats['deaths']))

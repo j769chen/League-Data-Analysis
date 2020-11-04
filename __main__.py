@@ -32,27 +32,54 @@ def main(summonerName, numGames, champion, lane, role=None):
 
     for stats in statsPercentiles:
         if lane == LANES['Bottom']:
-            print("You are within the top {} of {} {} {} players in terms of {}".format(100-statsPercentiles[stats],
-                                                                                        tier, division, role, stats))
+            print("You are within the top {} of {} {} {} players in terms of {}".format(round(100 - statsPercentiles[stats], 2),
+                                                                                        tier, division, role,
+                                                                                        FORMAL_NAMES[stats]))
         else:
-            print("You are within the top {} of {} {} {} players in terms of {}".format(100 - statsPercentiles[stats],
-                                                                                        tier, division, lane, stats))
+            print("You are within the top {} of {} {} {} players in terms of {}".format(round(100 - statsPercentiles[stats], 2),
+                                                                                        tier, division, lane,
+                                                                                        FORMAL_NAMES[stats]))
 
     print("Your overall performance: {} \n".format(letterGrade))
 
-    print("Here are some things you do well in game:")
-    for comment in congratsMsg:
-        print(comment)
+    if len(listOfTips) > 0:
+        print("Here are some things you do well in game:")
+        for comment in congratsMsg:
+            print(comment)
 
-    print("\n")
-    print("Here are some things you should try to improve on: \n")
-    for comment in listOfTips:
-        print(comment)
+    if len(listOfTips) > 0:
+        print("\n")
+        print("Here are some things you should try to improve on: \n")
+        for comment in listOfTips:
+            print(comment)
 
 
 if __name__ == "__main__":
     numGames = 0
+    userChoice = ''
     print("Welcome to int.gg, an app to see if you've been running it down!")
+    while userChoice != 'Y' and userChoice != 'N':
+        userChoice = input("Before we start, would you like to make any updates to the current local data (Y/N)?")
+
+        if userChoice != 'Y' and userChoice != 'N':
+            print("That is an invalid entry! Please enter either 'Y' or 'N'")
+
+    if userChoice == 'Y':
+        while userChoice != '0':
+            userChoice = '5'  # So that after one iteration, it does not automatically go to the previously selected option
+            print("Enter 1 to clear all current local data")
+            print("Enter 2 to download data for a specific division")
+            print("Enter 3 to download data for a specific tier")
+            print("Enter 4 to download data for all tiers (takes a long time due to rate cap)")
+            print("Enter 0 to exit")
+            while userChoice != '0' and userChoice != '1' and userChoice != '2' and userChoice != '3' and userChoice != '4':
+                userChoice = input("Please enter your choice:")
+
+                if userChoice != '0' and userChoice != '1' and userChoice != '2' and userChoice != '3' and userChoice != '4':
+                    print("Invalid option, please enter an integer between 0 and 4!")
+
+            if userChoice != '0':
+                getData.userDataOptions(userChoice)
 
     summonerName = input("Please enter your summoner name: ")
 

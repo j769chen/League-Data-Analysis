@@ -23,4 +23,3 @@ for champs in current_champ_list['data']:
 
 with open("championsDict.json", "w") as outfile:
     json.dump(championDict, outfile)
-

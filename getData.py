@@ -8,7 +8,7 @@ from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES
 
 """Module with all data fetching/dumping functions"""
 
-API_KEY= "RGAPI-75e1e9cd-80a2-4be5-b69f-60f91e4ccbc6"
+API_KEY= "RGAPI-654abbf9-89ec-46ea-ba6e-2c574be1b2d8"
 REGION = 'na1'
 QUEUE = 'RANKED_SOLO_5x5'  # Only interested in ranked solo queue data
 
@@ -120,7 +120,11 @@ def preprocessStats(player):  # Function to get other calculated stats before an
     player['stats']['CS'] = player['stats']['totalMinionsKilled'] + player['stats']['neutralMinionsKilled']
     player['stats']['CS/M'] = round(player['stats']['CS']/player['stats']['gameDuration'], 2)
     player['stats']['DPM'] = round(player['stats']['totalDamageDealtToChampions']/player['stats']['gameDuration'], 2)
-    player['stats']['earlyGameXp'] = player['timeline']['xpPerMinDeltas']['0-10']
+
+    try:  # Skips downloading XP/Min data when it is missing for certain divisions (i.e. Bronze IV)
+        player['stats']['earlyGameXp'] = player['timeline']['xpPerMinDeltas']['0-10']
+    except KeyError:
+        print("That division does not have XP per minute data ...Skipping Game...")
 
 
 def getPlayerMatchStats(summonerName, matchId):  # Get important stats from one match for a player
@@ -179,11 +183,9 @@ def getUsersStatsToReview(summonerName, lane, numGames, role=None, champion=None
             tier, division = leagues['tier'], leagues['rank']
 
     matchHistory = requestMatchHistory(summonerInfo['accountId'], champion)
-    print(matchHistory)
     userStats = []
 
     filteredMatchList = filterMatchList(matchHistory, lane, role, numGames)
-    print(filteredMatchList)
     for matches in filteredMatchList:
         userStats.append(getPlayerMatchStats(summonerName, matches['gameId']))  # Returns list of user stats
 
@@ -240,7 +242,6 @@ def recordMatchStats(tier, division, matchId):  # Dump stats from a match to the
     match = requestMatchById(matchId)
     for players in match['participants']:
         players['stats']['gameDuration'] = round(match['gameDuration']/60, 2)
-        print(players)
         preprocessStats(players)
         if players['timeline']['lane'] != 'NONE' and (players['timeline']['lane'] != 'BOTTOM' or
                                                       (players['timeline']['role'] != 'DUO' and
@@ -255,7 +256,7 @@ def recordMatchStats(tier, division, matchId):  # Dump stats from a match to the
 def getDataForDivision(tier, division='I'):  # Get ~10 random matches from players that are in a specific tier and division, excluding those with deprecated roles
     rankedTier = requestRankedTier(tier, division)
     matchHistories = []
-
+    print("Getting data for {} {}...".format(tier, division))
     for i in range(10): # Get match histories from 10 random players in the current tier
         if tier == TIERS['Master'] or tier == TIERS['Grandmaster'] or tier == TIERS['Challenger']:
             summonerData = requestSummonerData(rankedTier['entries'][i]['summonerName'])
@@ -274,13 +275,11 @@ def getDataForTier(tier):
         getDataForDivision(tier)
     else:
         for i in range(1, 4):
-            print("Getting data for {} {}".format(tier, DIVISIONS[i]))
             getDataForDivision(tier, DIVISIONS[i])
 
         print('Waiting 2 min for rate cap to reset...')
         time.sleep(120)  # Need to do this to avoid rate cap for API requests, which is 100/2min
 
-        print("Getting data for {} {}".format(tier, DIVISIONS[4]))
         getDataForDivision(tier, DIVISIONS[4])
 
 
@@ -288,53 +287,44 @@ def getDataForAllTiers():  # Fetches data for all tiers, due to rate limits on A
     for tier in TIERS:
         getDataForTier(TIERS[tier])
         if tier != TIERS['Master'] or tier != TIERS['Grandmaster'] or tier != TIERS['Challenger']:  # Since only 1 division for top 3 tiers, do not need to wait as we can run all three without hitting the cap
+            print('Waiting 2 min for rate cap to reset...')
             time.sleep(120)
 
 
-# start_time = time.time()
-# getDataForAllTiers()
-# print(time.time() - start_time())
+def userDataOptions(userInput):  # To be run at the beginning of main, ask the user if they would like to reset data, or download new data for a divison, tier, or every tier
+    tier = ''
 
+    if userInput == '1':
+        generateFiles()
+        print("You have just cleared all local data, all files are now empty. Please be sure to re-download data before"
+              "doing an evaluation.")
 
-# getDataForTier('PLATINUM')
-# generateFiles()
+    elif userInput == '2':
+        division = 0
+        print("Valid tiers are: Iron, Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster, Challenger")
+        while tier not in TIERS:
+            tier = input("What tier would you like to download data for? ")
 
-# def getDataForAllDivisions():
-# getDataForDivision('PLATINUM', 'IV')
-# testMatch = getMatchById(3630630530)
-# print(testMatch)
-#
-# print(getPlayerMatchStats('xTheChosenWon', testMatch))
-#
-# recordMatchStats('PLATINUM', 'IV', testMatch)
-# summoner = requestSummonerData('xTheChosenWon')
-#
-# print(summoner)
-#
-# print(requestRankedData(summoner))
+            if tier not in TIERS:
+                print("That is an invalid entry")
 
+        while division not in DIVISIONS:
+            division = int(input("What division would you like to download data for (1-4)? "))
 
+            if division not in DIVISIONS:
+                print("That is an invalid entry")
 
-# print(getMatchHistory(summoner['accountId'], APIKey))
+        getDataForDivision(TIERS[tier], DIVISIONS[division])
 
-# championMatches = getMatchHistory(summoner['accountId'], 236)
-# print(championMatches)
-#
-# matchList = []
-# for i in range(10):
-#     matchList.append(getMatchById(championMatches['matches'][i]['gameId']))
+    elif userInput == '3':
+        print("Valid tiers are: Iron, Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster, Challenger")
+        while tier not in TIERS:
+            tier = input("What tier would you like to download data for? ")
 
-# print(matchList)
+            if tier not in TIERS:
+                print("That is an invalid entry")
 
-# totalDeaths = 0
-# for match in matchList:
-#     for player in match['participants']:
-#         if player['championId'] == 236:
-#             print
-#             totalDeaths += player['stats']['deaths']
-#
-# print(totalDeaths/10)
+        getDataForTier(TIERS[tier])
 
-# match = getMatchById(3628818602)
-
-
+    elif userInput == '4':
+        getDataForAllTiers()
