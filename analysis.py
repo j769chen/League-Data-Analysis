@@ -1,12 +1,16 @@
 import json
+import os
 from tabulate import tabulate
 from roleReference import LANES, BOT_ROLES, LETTER_GRADES, FORMAL_NAMES
-from getData import getFilepath
+from getData import getFilepath, getDataForDivision
 
 
 def readMultipleJSONS(tier, division, lane, role=None): # Read JSONs from file into a list
     statsList = []
     jsonName = getFilepath(tier, division, lane, role)
+    if os.stat(jsonName).st_size == 0:  # Check if file with division data is empty, if it is, fill it with data then continue
+        print("No local data found for {} {}. Downloading now...".format(tier, division))
+        getDataForDivision(tier, division)
 
     with open(jsonName, 'r') as infile:
         for lines in infile:
