@@ -130,7 +130,7 @@ def getSpecificStatList(tier, division, lane, stat, role=None): # Gets the list 
     return returnList
 
 
-def filterImportantStats(statsDict, importantStats): # Filters out non important stats based on respective STATS_WEIGHTINGS dict
+def filterImportantStats(statsDict, importantStats):  # Filters out non important stats based on respective STATS_WEIGHTINGS dict
     unwantedKeys = set(statsDict.keys()) - set(importantStats.keys())
     for keys in unwantedKeys:
         del statsDict[keys]
