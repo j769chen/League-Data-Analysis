@@ -25,7 +25,7 @@ def tooManyRequestsError(jsonResponse):  # Function to inform user if they cap o
 
 def summonerNotFoundError(jsonResponse):  # Error handling to inform user if they entered an invalid summoner name
     if jsonResponse == {'status': {'message': 'Data not found - summoner not found', 'status_code': 404}}:
-        print('ERROR: You have entered an invalid summoner name, please try again')
+        print('ERROR: You have entered a summoner that does not exist, please try again')
         print(jsonResponse)
         sys.exit(-1)
     return 0

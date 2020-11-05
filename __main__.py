@@ -1,3 +1,18 @@
+"""
+Requirements:
+-requests
+-lolwatcher (this is only required to update champion data, but that is not necessary unless a new champion is added to the game)
+-tabulate
+The rest should be built in modules
+
+Some users to try this program on:
+xTheChosenWon (me)
+Revenge (Rank 1 on the North American ladder)
+Doublelift (Well known professional bot lane ADC player)
+
+See championDict for names of champions if you wish to filter by champion
+"""
+
 import json
 from roleReference import LANES, BOT_ROLES, STATS_WEIGHTINGS, FORMAL_NAMES
 import getData
