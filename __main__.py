@@ -57,7 +57,7 @@ def main(summonerName, numGames, champion, lane, role=None):
 
     print("Your overall performance: {} \n".format(letterGrade))
 
-    if len(listOfTips) > 0:
+    if len(congratsMsg) > 0:
         print("Here are some things you do well in game:")
         for comment in congratsMsg:
             print(comment)
