@@ -246,59 +246,59 @@ def generateTips(belowAverageStats, averageUserStats, lane, role):  # Generates 
 
         if 'CS/M' in belowAverageStats:
             listOfTips.append("Your CS/M is quite low at around {} per game. This generally indicates that you are not "
-                              "continuing to CS effectively after laning phase. In the mid/late game, make sure to catch"
+                              "continuing to CS effectively after laning phase. In the mid/late game, make sure to catch "
                               "incoming waves that are not already taken by another laner.".format(averageUserStats['CS/M']))
 
     # Role specific advice
     if lane == LANES['Top']:
         if 'visionScore' in belowAverageStats:
-            listOfTips.append("You are averaging around {} vision score and {} wards placed per game. As a top laner,"
+            listOfTips.append("You are averaging around {} vision score and {} wards placed per game. As a top laner, "
                               "wards are essential for preventing ganks and for split pushing safely. You should "
                               "actively think about buying more wards.".format(averageUserStats['visionScore'], averageUserStats['wardsPlaced']))
 
         if 'timeCCingOthers' in belowAverageStats:
-            listOfTips.append("You are not providing alot of CC to your team. In teamfights, try to engage onto the enemy"
+            listOfTips.append("You are not providing alot of CC to your team. In teamfights, try to engage onto the enemy "
                               "backline, or protect your own backline and peel for them")
     elif lane == LANES['Jungle']:
         if 'visionScore' in belowAverageStats:
-            listOfTips.append("You are averaging around {} vision score and {} wards placed per game. As a jungler,"
-                              "you should theoretically be placing the 2nd most wards on your team in order to gain map"
-                              "and objective control. Additionally, wards will help you to track the opposing jungler."
+            listOfTips.append("You are averaging around {} vision score and {} wards placed per game. As a jungler, "
+                              "you should theoretically be placing the 2nd most wards on your team in order to gain map "
+                              "and objective control. Additionally, wards will help you to track the opposing jungler. "
                               "You should actively think about buying more wards.".format(averageUserStats['visionScore'], averageUserStats['wardsPlaced']))
     elif lane == LANES['Middle']:
         if 'visionScore' in belowAverageStats:
-            listOfTips.append("You are averaging around {} vision score and {} wards placed per game. As a mid laner,"
-                              "you should be warding around your lane to help your jungler fight for crabs, initiate roams,"
+            listOfTips.append("You are averaging around {} vision score and {} wards placed per game. As a mid laner, "
+                              "you should be warding around your lane to help your jungler fight for crabs, initiate roams, "
                               "and you track your lane opponent's movements. You should actively think about buying more "
                               "wards.".format(averageUserStats['visionScore'], averageUserStats['wardsPlaced']))
 
         if 'DPM' in belowAverageStats:
-            listOfTips.append("Your DPM is quite low for a mid laner, at only {}. Mid laners are generally supposed to serve"
+            listOfTips.append("Your DPM is quite low for a mid laner, at only {}. Mid laners are generally supposed to serve "
                               "as either the primary or secondary damage source. You may need to improve your mechanics "
                               "and team fighting".format(averageUserStats['DPM']))
     elif lane == LANES['Bottom']:
         if role == BOT_ROLES['ADC']:
             if 'visionScore' in belowAverageStats:
                 listOfTips.append(
-                    "You are averaging around {} vision score and {} wards placed per game. While ADCs ward less, it is still"
-                    "important that you buy pinks in order to set up your jungler for ganks and for dragon control."
+                    "You are averaging around {} vision score and {} wards placed per game. While ADCs ward less, it is still "
+                    "important that you buy pinks in order to set up your jungler for ganks and for dragon control "
                     "wards.".format(averageUserStats['visionScore'], averageUserStats['wardsPlaced']))
 
             if 'DPM' in belowAverageStats:
-                listOfTips.append("Your DPM is very low at only {}. As and AD carry, it is your job to be a primary damage dealer for"
+                listOfTips.append("Your DPM is very low at only {}. As and AD carry, it is your job to be a primary damage dealer for "
                                   "your team. You should try to play more aggresive in lane, and be less afraid in "
                                   "teamfights. ".format(averageUserStats['DPM']))
         else:
             if 'visionScore' in belowAverageStats:
-                listOfTips.append("You are averaging around {} vision score and {} wards placed per game. Supports should"
-                                  "be warding around the map the most out of any role. In lane, make time to leave your ADC"
+                listOfTips.append("You are averaging around {} vision score and {} wards placed per game. Supports should "
+                                  "be warding around the map the most out of any role. In lane, make time to leave your ADC "
                                   "to ward around dragon and in the enemy's botside. Later in the game, you should be "
                                   "moving around with your jungler in order to get vision near important objectives such "
                                   "as baron or dragon.".format(averageUserStats['visionScore'], averageUserStats['wardsPlaced']))
 
             if 'visionWardsBoughtInGame' in belowAverageStats:
-                listOfTips.append("You are only buying an average of {} pink wards per game. As a support, pink wards"
-                                  "are one of the most useful tools for you to gain vision control around the map."
+                listOfTips.append("You are only buying an average of {} pink wards per game. As a support, pink wards "
+                                  "are one of the most useful tools for you to gain vision control around the map. "
                                   "Every time you go to base, try to think about buying a pink ward"
                                   .format(averageUserStats['visionWardsBoughtInGame']))
     return listOfTips
