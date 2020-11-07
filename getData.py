@@ -8,11 +8,17 @@ from roleReference import TIERS, DIVISIONS, LANES, BOT_ROLES
 
 """Module with all data fetching/dumping functions"""
 
-API_KEY= "RGAPI-654abbf9-89ec-46ea-ba6e-2c574be1b2d8"
+API_KEY= "RGAPI-9d0a825e-2a43-4d41-bb1d-059706a58025"
 REGION = 'na1'
 QUEUE = 'RANKED_SOLO_5x5'  # Only interested in ranked solo queue data
 
-numrequests = 0
+
+def invalidAPIKeyError(jsonResponse):  # If error 403, most likely culprit is an invalid API key
+    if jsonResponse == {'status': {'message': 'Forbidden', 'status_code': 403}}:
+        print('ERROR: The API has returned error 403, please ensure that your API key is valid')
+        print(jsonResponse)
+        sys.exit(-1)
+    return 0
 
 
 def tooManyRequestsError(jsonResponse):  # Function to inform user if they cap out on API requests
@@ -43,10 +49,9 @@ def requestSummonerData(summonerName):  # Get a summoner's profile based on thei
     URL = "https://{}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{}?api_key={}".format(REGION, summonerName, API_KEY)
     response = requests.get(URL)
 
-    global numrequests
-    numrequests += 1
-
     jsonResponse = response.json()
+
+    invalidAPIKeyError(jsonResponse)
     tooManyRequestsError(jsonResponse)
     summonerNotFoundError(jsonResponse)
     return jsonResponse
@@ -57,10 +62,9 @@ def requestRankedData(summonerDict):  # Get a summoner's ranked stats from their
     URL = "https://{}.api.riotgames.com/lol/league/v4/entries/by-summoner/{}?api_key={}".format(REGION, summonerID, API_KEY)
     response = requests.get(URL)
 
-    global numrequests
-    numrequests += 1
-
     jsonResponse = response.json()
+
+    invalidAPIKeyError(jsonResponse)
     tooManyRequestsError(jsonResponse)
     return jsonResponse
 
@@ -74,10 +78,8 @@ def requestRankedTier(tier, division=None):  # Get random players from a specifi
 
     response = requests.get(URL)
 
-    global numrequests
-    numrequests += 1
-
     jsonResponse = response.json()
+    invalidAPIKeyError(jsonResponse)
     tooManyRequestsError(jsonResponse)
     return jsonResponse
 
@@ -90,10 +92,9 @@ def requestMatchHistory(accountID, champion=None):  # Get a user's match history
         URL = baseURL + "&api_key={}".format(API_KEY)
     response = requests.get(URL)
 
-    global numrequests
-    numrequests += 1
-
     jsonResponse = response.json()
+
+    invalidAPIKeyError(jsonResponse)
     tooManyRequestsError(jsonResponse)
     matchesNotFoundError(jsonResponse)
     return jsonResponse['matches']
@@ -104,10 +105,9 @@ def requestMatchById(matchId):  # Fetch one match's data from its match ID
                                                                                                  API_KEY)
     response = requests.get(URL)
 
-    global numrequests
-    numrequests += 1
-
     jsonResponse = response.json()
+
+    invalidAPIKeyError(jsonResponse)
     tooManyRequestsError(jsonResponse)
     return jsonResponse
 
