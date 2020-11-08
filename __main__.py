@@ -11,6 +11,8 @@ Revenge (Rank 1 on the North American ladder)
 Doublelift (Well known professional bot lane ADC player)
 
 See championDict for names of champions if you wish to filter by champion
+
+***Remember to update the API key in getData.py before running***
 """
 
 import json
